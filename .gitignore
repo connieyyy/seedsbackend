@@ -1,0 +1,3 @@
+.env
+./asset/firebasekey.json
+node_modules
