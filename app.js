@@ -13,18 +13,17 @@ const router = express();
 
 router.use(bodyParser.json());
 
-// Login API
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => console.log("MongoDB connected successfully!"))
-  .catch((err) => console.error("failed to connect to MongoDB", err));
+  .catch((err) => console.error("Failed to connect to MongoDB", err));
 
 // Firebase Admin SDK
 const serviceAccount = require("./asset/firebasekey.json");
-
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
