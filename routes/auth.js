@@ -9,7 +9,6 @@ const admin = require("firebase-admin");
 router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
   try {
-    // Check if the user already exists
     const existingUser = await UserData.findOne({ email });
     if (existingUser) {
       return res.status(400).send("User already exists with this email");
