@@ -1,76 +1,98 @@
 const express = require("express");
 const router = express.Router();
+const UserData = require("../models/userData.js");
 
-let missions = [
-  {
-    id: 0,
-    title: "Mission #1",
-    description: "Drink 2 liters of water",
-  },
-  {
-    id: 1,
-    title: "Mission #1",
-    description: "Eat 5 servings of fruit.",
-  },
-  {
-    id: 2,
-    title: "Mission #2",
-    description: "Eat 5 servings of fruits.",
-  },
-  {
-    id: 3,
-    title: "Mission #3",
-    description: "Try a new vegetable.",
-  },
-];
+// GET a mission by date
+router.get("/:email/:date", async (req, res) => {
+  const { email, date } = req.params; // Extract both email and date from params
 
-// Get all missions
-router.get("/", (req, res) => {
-  res.json(missions);
+  try {
+    const user = await UserData.findOne({ email });
+    if (!user) return res.status(404).send("User not found.");
+
+    // Filter missions based on the date
+    const mission = user.missions.filter(
+      (mission) => mission.date.toISOString().split("T")[0] === date
+    );
+
+    if (mission.length === 0) return res.status(404).send("Mission not found.");
+    res.json(mission); // Return the missions found
+  } catch (err) {
+    console.error("Error retrieving user information", err);
+    res.status(500).send(`Internal server error: ${err.message}`);
+  }
 });
 
-// Get a specific mission by ID
-router.get("/:id", (req, res) => {
-  const mission = missions.find((m) => m.id === parseInt(req.params.id));
-  if (!mission) return res.status(404).send("Mission not found.");
-  res.json(mission);
-});
+// POST a new mission
+router.post("/add-mission", async (req, res) => {
+  const { title, description, reward, status, number } = req.body;
 
-// Create a new mission
-router.post("/", (req, res) => {
-  const { title, description } = req.body;
-  if (!title || !description)
+  if (!title || !description) {
     return res.status(400).send("Title and description are required.");
+  }
 
   const newMission = {
-    id: missions.length + 2,
     title,
     description,
+    reward,
+    status: status !== undefined ? status : false,
+    number,
   };
-  missions.push(newMission);
-  res.status(201).json(newMission);
+
+  try {
+    await UserData.updateMany({}, { $push: { missions: newMission } });
+    res.status(201).send("Mission added successfully to all users.");
+  } catch (err) {
+    console.error("Error adding mission", err);
+    res.status(500).send(`Internal server error: ${err.message}`);
+  }
 });
 
-// Update a mission by ID
-router.put("/:id", (req, res) => {
-  const { title, description } = req.body;
-  const mission = missions.find((m) => m.id === parseInt(req.params.id));
-  if (!mission) return res.status(404).send("Mission not found.");
+// Update mission status by date if completed
+router.put("/:email/:number", async (req, res) => {
+  const { email, number } = req.params;
 
-  if (title) mission.title = title;
-  if (description) mission.description = description;
-  res.json(mission);
+  try {
+    const user = await UserData.findOne({ email });
+    if (!user) return res.status(404).send("User not found.");
+
+    const mission = user.missions.find((m) => m.number === parseInt(number));
+    if (!mission) return res.status(404).send("Mission not found.");
+
+    // Update mission status to true and optionally title and description
+    mission.status = true;
+
+    await user.save();
+    res.status(200).send("Mission updated successfully.");
+  } catch (err) {
+    console.error("Error updating mission", err);
+    res.status(500).send(`Internal server error: ${err.message}`);
+  }
 });
 
-// Delete a mission by ID
-router.delete("/:id", (req, res) => {
-  const missionIndex = missions.findIndex(
-    (m) => m.id === parseInt(req.params.id)
-  );
-  if (missionIndex === -1) return res.status(404).send("Mission not found.");
+// DELETE a mission by date
+router.delete("/:email/:date", async (req, res) => {
+  const { email, date } = req.params;
 
-  const deletedMission = missions.splice(missionIndex, 1);
-  res.json(deletedMission);
+  try {
+    const user = await UserData.findOne({ email });
+    if (!user) return res.status(404).send("User not found.");
+
+    const initialLength = user.missions.length;
+    user.missions = user.missions.filter(
+      (mission) => mission.date.toISOString().split("T")[0] !== date
+    );
+
+    if (user.missions.length === initialLength) {
+      return res.status(404).send("Mission not found.");
+    }
+
+    await user.save();
+    res.status(200).send("Mission deleted successfully.");
+  } catch (err) {
+    console.error("Error deleting mission", err);
+    res.status(500).send(`Internal server error: ${err.message}`);
+  }
 });
 
 module.exports = router;

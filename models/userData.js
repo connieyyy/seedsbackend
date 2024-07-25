@@ -13,6 +13,7 @@ const userMissionsSchema = new mongoose.Schema({
   description: { type: String, required: true },
   reward: String,
   status: { type: Boolean, default: false },
+  number: { type: Number, required: true },
 });
 
 const userPetSchema = new mongoose.Schema({
