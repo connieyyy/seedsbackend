@@ -21,7 +21,7 @@ router.post("/signup", async (req, res) => {
       name,
       password: hashedPassword,
       frogCoins: 0,
-      pet: [],
+      pet: [{}],
       FoodLogs: [],
       missions: [],
     });

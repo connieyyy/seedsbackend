@@ -16,7 +16,6 @@ const userMissionsSchema = new mongoose.Schema({
 const userPetSchema = new mongoose.Schema({
   petName: { type: String, required: true, default: "Froggy" },
   petHealthLevel: { type: Number, default: 70 },
-  petAge: { type: Number },
 });
 
 const userDataSchema = new mongoose.Schema({
