@@ -58,9 +58,13 @@ router.put("/:email/:number", async (req, res) => {
 
     const mission = user.missions.find((m) => m.number === parseInt(number));
     if (!mission) return res.status(404).send("Mission not found.");
+    if (mission.status) {
+      return res.status(400).send("Mission already completed.");
+    }
 
-    // Update mission status to true and optionally title and description
     mission.status = true;
+    const reward = parseInt(mission.reward, 10);
+    user.frogCoins = (user.frogCoins || 0) + reward;
 
     await user.save();
     res.status(200).send("Mission updated successfully.");
