@@ -4,7 +4,7 @@ const UserData = require("../models/userData.js");
 
 // POST: Create FoodLog Entry
 router.post("/", async (req, res) => {
-  const { email, foodName } = req.body;
+  const { email, foodName, foodDescription, foodPhotoLink } = req.body;
   const date = req.body.date || new Date().toISOString().split("T")[0];
 
   // find user by email
@@ -14,7 +14,12 @@ router.post("/", async (req, res) => {
       return res.status(404).send("User not found.");
     }
     // create new food log entry
-    const newFoodLog = { date, foodName };
+    const newFoodLog = {
+      date,
+      foodName,
+      foodDescription, // Added
+      foodPhotoLink, // Added
+    };
     //add new food log to user's foodlogs
     user.FoodLogs.push(newFoodLog);
     // save updated user document

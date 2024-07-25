@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const userFoodLogSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   foodName: { type: String, required: true },
+  foodDescription: { type: String },
+  foodPhotoLink: { type: String },
 });
 
 const userMissionsSchema = new mongoose.Schema({
