@@ -7,18 +7,22 @@ const admin = require("firebase-admin");
 
 // Signup route
 router.post("/signup", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password } = req.body;
   try {
     const existingUser = await UserData.findOne({ email });
     if (existingUser) {
       return res.status(400).send("User already exists with this email");
+    }
+    const existingName = await UserData.findOne({ username });
+    if (existingName) {
+      return res.status(400).send("User already exists with this username");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new UserData({
       email,
-      name,
+      username,
       password: hashedPassword,
       frogCoins: 0,
       pet: [{}],

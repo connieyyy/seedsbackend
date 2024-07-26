@@ -10,13 +10,12 @@ router.get("/:email/:date", async (req, res) => {
     const user = await UserData.findOne({ email });
     if (!user) return res.status(404).send("User not found.");
 
-    // Filter missions based on the date
     const mission = user.missions.filter(
       (mission) => mission.date.toISOString().split("T")[0] === date
     );
 
     if (mission.length === 0) return res.status(404).send("Mission not found.");
-    res.json(mission); // Return the missions found
+    res.json(mission);
   } catch (err) {
     console.error("Error retrieving user information", err);
     res.status(500).send(`Internal server error: ${err.message}`);
