@@ -22,9 +22,11 @@ const userPetSchema = new mongoose.Schema({
 });
 
 const userDataSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   frogCoins: { type: Number, default: 0 },
+  friends: [{ type: String }],
   pet: [userPetSchema],
   FoodLogs: [userFoodLogSchema],
   missions: [userMissionsSchema],

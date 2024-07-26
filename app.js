@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -9,6 +8,8 @@ const authRouter = require("./routes/auth");
 const missionsRouter = require("./routes/missions");
 const foodlogsRouter = require("./routes/foodlogs");
 const petsRouter = require("./routes/pets");
+const friendsRouter = require("./routes/friends");
+const profileRouter = require("./routes/profile");
 const apiRouter = require("./routes/chat");
 
 const app = express();
@@ -35,6 +36,8 @@ app.use("/missions", missionsRouter);
 app.use("/foodlogs", foodlogsRouter);
 app.use("/pets", petsRouter);
 app.use("/chat", apiRouter);
+app.use("/profile", profileRouter);
+app.use("/friends", friendsRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
