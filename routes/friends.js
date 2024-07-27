@@ -13,12 +13,10 @@ router.get("/:email", async (req, res) => {
     }
 
     if (user.friends.length === 0) {
-      return res.status(200).send("No friends yet!");
+      return res.status(200).send("");
     }
-
     res.status(200).json(user.friends);
   } catch (err) {
-    console.error("Error fetching friends", err);
     res.status(500).send(`Internal server error: ${err.message}`);
   }
 });
@@ -33,6 +31,9 @@ router.post("/:email/:friendUsername", async (req, res) => {
 
     if (!user || !friend) {
       return res.status(404).send("User or friend not found");
+    }
+    if (user.username === friend.username) {
+      return res.status(404).send("User can not add themself.");
     }
 
     if (user.friends.includes(friendUsername)) {
