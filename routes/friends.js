@@ -41,7 +41,9 @@ router.post("/:email/:friendUsername", async (req, res) => {
     }
 
     user.friends.push(friendUsername);
+    friend.friends.push(user.username);
     await user.save();
+    await friend.save();
 
     res.status(200).send("Friend added successfully");
   } catch (err) {
