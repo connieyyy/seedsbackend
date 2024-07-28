@@ -30,6 +30,8 @@ const userDataSchema = new mongoose.Schema({
   pet: [userPetSchema],
   FoodLogs: [userFoodLogSchema],
   missions: [userMissionsSchema],
+  purchasedItems: [{ type: mongoose.Schema.Types.ObjectId, ref: "storeData" }],
+  accessory: { type: String },
 });
 
 const UserData = mongoose.model("UserData", userDataSchema);

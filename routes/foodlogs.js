@@ -69,14 +69,11 @@ router.get("/:email/:date", async (req, res) => {
 
   try {
     const user = await UserData.findOne({ email });
-    if (!user) return res.status(404).send("User not found.");
 
+    if (!user) return res.status(404).send("User not found.");
     const foodLog = user.FoodLogs.filter(
       (log) => log.date.toISOString().split("T")[0] === date
     );
-
-    if (foodLog.length === 0)
-      return res.status(404).send("Food log entry not found.");
 
     res.json(foodLog);
   } catch (err) {
