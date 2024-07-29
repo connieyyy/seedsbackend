@@ -48,6 +48,10 @@ router.post("/:email", async (req, res) => {
       return res.status(404).json({ error: "Pet not found" });
     }
     pet.petHealthLevel += healthChangeMap[inventoryItem] || 0;
+    if (pet.petHealthLevel > 100) {
+      return res.status(404).json({ error: "Pet is full" });
+    }
+
     const index = user.purchasedItems.findIndex((item) =>
       item.equals(inventoryItemObjectId)
     );
