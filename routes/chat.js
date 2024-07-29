@@ -3,7 +3,7 @@ const router = express.Router();
 const openai = require("../openaiClient.js");
 
 router.post("/ask", async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt } = req.body["prompt"];
 
   try {
     const response = await openai.completions.create({

@@ -12,6 +12,7 @@ const friendsRouter = require("./routes/friends");
 const storeRouter = require("./routes/store");
 const apiRouter = require("./routes/chat");
 const feedRouter = require("./routes/feed");
+const decorRouter = require("./routes/decor");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use("/chat", apiRouter);
 app.use("/friends", friendsRouter);
 app.use("/feed", feedRouter);
 app.use("/store", storeRouter);
+app.use("/decor", decorRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

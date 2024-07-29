@@ -32,22 +32,29 @@ const upload = multer({
   }),
 });
 
-// POST: Create store item with image upload
+// POST: post store item
 router.post("/", upload.single("itemImage"), async (req, res) => {
-  const { itemName, itemPrice, itemDescription } = req.body;
-  const itemImage = req.file.location;
+  const { itemName, itemPrice, itemDescription, oneTime, itemType } = req.body;
+  const itemImage = req.file?.location;
+
+  if (!itemImage) {
+    return res.status(400).json({ error: "Image upload failed" });
+  }
 
   const newItem = new StoreItem({
     itemName,
     itemPrice,
     itemImage,
     itemDescription,
+    oneTime,
+    itemType,
   });
 
   try {
     const savedItem = await newItem.save();
     res.status(201).json(savedItem);
   } catch (err) {
+    console.error("Error saving item:", err); // Log error for debugging
     res.status(500).json({ error: "Failed to create store item" });
   }
 });
