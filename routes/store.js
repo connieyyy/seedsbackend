@@ -54,7 +54,7 @@ router.post("/", upload.single("itemImage"), async (req, res) => {
     const savedItem = await newItem.save();
     res.status(201).json(savedItem);
   } catch (err) {
-    console.error("Error saving item:", err); // Log error for debugging
+    console.error("Error saving item:", err);
     res.status(500).json({ error: "Failed to create store item" });
   }
 });
@@ -79,7 +79,10 @@ router.get("/:email", async (req, res) => {
       return res.status(404).send({ error: "User not found" });
     }
 
-    res.json({ frogCoins: user.frogCoins });
+    res.json({
+      frogCoins: user.frogCoins,
+      purchasedItems: user.purchasedItems,
+    });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
@@ -109,7 +112,7 @@ router.post("/:email/:itemId", async (req, res) => {
       );
       return res.status(400).send({ error: "Insufficient coins" });
     }
-    if (item.isOneTimePurchase && user.purchasedItems.includes(itemId)) {
+    if (item.oneTime && user.purchasedItems.includes(itemId)) {
       console.error("Item already purchased:", itemId);
       return res.status(400).send({ error: "Item already purchased" });
     }
