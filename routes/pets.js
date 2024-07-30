@@ -80,4 +80,23 @@ router.put("/:email/updateHealth", async (req, res) => {
   }
 });
 
+// GET: Get pet's accessory status (used by multiple pages)
+router.get("/:email/accessory", async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await UserData.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const petDetails = {
+      accessory: user.accessory,
+    };
+
+    res.status(200).json(petDetails);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
