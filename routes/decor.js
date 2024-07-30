@@ -47,16 +47,22 @@ router.post("/:email", async (req, res) => {
     if (!pet) {
       return res.status(404).json({ error: "Pet not found" });
     }
-    pet.petHealthLevel += healthChangeMap[inventoryItem] || 0;
-    if (pet.petHealthLevel > 100) {
-      return res.status(404).json({ error: "Pet is full" });
-    }
 
-    const index = user.purchasedItems.findIndex((item) =>
-      item.equals(inventoryItemObjectId)
-    );
-    if (index > -1) {
-      user.purchasedItems.splice(index, 1);
+    // checks type of food
+    if (healthChangeMap.hasOwnProperty(inventoryItem)) {
+      pet.petHealthLevel += healthChangeMap[inventoryItem];
+      if (pet.petHealthLevel > 100) {
+        return res.status(400).json({ error: "Pet is full" });
+      }
+
+      const index = user.purchasedItems.findIndex((item) =>
+        item.equals(inventoryItemObjectId)
+      );
+      if (index > -1) {
+        user.purchasedItems.splice(index, 1);
+      }
+    } else {
+      user.accessory = inventoryItem;
     }
 
     const updatedUser = await user.save();
