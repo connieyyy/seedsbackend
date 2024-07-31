@@ -15,10 +15,31 @@ router.get("/:email", async (req, res) => {
         }).exec();
         if (!friend) return null;
 
+        const createUTCDateAtMidnight = (year, month, day) => {
+          return new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+        };
+
+        const today = new Date();
+        const start = createUTCDateAtMidnight(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate()
+        );
+        const end = createUTCDateAtMidnight(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate() + 1
+        );
+
+        const foodLogsToday = friend.FoodLogs.filter((log) => {
+          const logDate = new Date(log.date);
+          return logDate >= start && logDate < end;
+        });
+
         return {
           username: friend.username,
-          posts: friend.FoodLogs.map((log) => log.foodPhotoLink),
-          foodLogs: friend.FoodLogs.map((log) => ({
+          posts: foodLogsToday.map((log) => log.foodPhotoLink),
+          foodLogs: foodLogsToday.map((log) => ({
             title: log.foodName,
             description: log.foodDescription,
           })),

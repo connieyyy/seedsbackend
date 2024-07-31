@@ -17,7 +17,6 @@ router.post("/askg", async (req, res) => {
   const result = await model.generateContent("short nutrition tip");
   const response = await result.response;
   const text = response.text();
-  console.log(text);
   res.json({ reply: text });
 });
 
