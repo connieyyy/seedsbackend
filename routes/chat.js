@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const openai = require("../openaiClient.js");
+const genAI = require("../geminiClient.js");
 
 router.post("/ask", async (req, res) => {
   const { prompt } = req.body["prompt"];
@@ -19,4 +20,15 @@ router.post("/ask", async (req, res) => {
   }
 });
 
+router.post("/askg", async (req, res) => {
+  const { prompt } = req.body["prompt"];
+
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  const result = await model.generateContent("short nutrition tip");
+  const response = await result.response;
+  const text = response.text();
+  console.log(text);
+  res.json({ reply: text });
+});
 module.exports = router;
