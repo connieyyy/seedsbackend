@@ -31,10 +31,11 @@ const upload = multer({
   }),
 });
 
-// POST: food log
+// POST: Add food log
 router.post("/:email", upload.single("image"), async (req, res) => {
+  console.log("POST request received");
   try {
-    const { email } = req.params;
+    const { email } = req.params; // Extract email from URL parameters
     const { foodName, foodDescription } = req.body;
     const date = req.body.date || new Date().toISOString().split("T")[0];
     const foodPhotoLink = req.file ? req.file.location : null;
@@ -42,7 +43,7 @@ router.post("/:email", upload.single("image"), async (req, res) => {
     const user = await UserData.findOne({ email });
 
     if (!user) {
-      return res.status(404).send({ error: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     const newFoodLog = {
@@ -53,43 +54,72 @@ router.post("/:email", upload.single("image"), async (req, res) => {
     };
 
     user.FoodLogs.push(newFoodLog);
-    user.frogCoins = user.frogCoins + 5;
+    user.frogCoins += 5;
     await user.save();
+    //console.log("New food log added:", newFoodLog);
 
-    res.status(201).send({ message: "Food log entry created successfully" });
+    res.status(201).json({ message: "Food log entry created successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Error creating food log entry" });
+    console.error("Error creating food log entry:", error);
+    res.status(500).json({ error: "Error creating food log entry" });
   }
 });
 
-// GET: Get food log entry route
+// GET: Retrieve food log entries for a specific date
 router.get("/:email/:date", async (req, res) => {
   const { email, date } = req.params;
+  console.log(`Fetching food logs for email: ${email}, date: ${date}`);
 
   try {
     const user = await UserData.findOne({ email });
 
-    if (!user) return res.status(404).send("User not found.");
-    const foodLog = user.FoodLogs.filter(
-      (log) => log.date.toISOString().split("T")[0] === date
-    );
+    if (!user) {
+      console.error(`User not found for email: ${email}`);
+      return res.status(404).json({ error: "User not found" });
+    }
 
+    // Convert the date parameter to 'YYYY-MM-DD' format
+    const isoDate = new Date(date).toISOString().split("T")[0];
+    console.log("ISO Date:", isoDate);
+
+    // Ensure FoodLogs is an array and log its structure
+    if (!Array.isArray(user.FoodLogs)) {
+      console.error("FoodLogs is not an array:", user.FoodLogs);
+      return res.status(500).json({ error: "FoodLogs data is not an array" });
+    }
+
+    // Filter food logs based on date
+    const foodLog = user.FoodLogs.filter((log) => {
+      let logDate;
+
+      // Check if log.date is a Date object and convert it to string
+      if (log.date instanceof Date) {
+        logDate = log.date.toISOString().split("T")[0];
+      } else {
+        // Convert log.date to string if it's not a Date object
+        logDate = String(log.date).split("T")[0];
+      }
+
+      console.log("Processed Log Date:", logDate); // Log the processed log date
+      return logDate === isoDate;
+    });
+
+    console.log("Filtered food logs:", foodLog);
     res.json(foodLog);
   } catch (err) {
-    console.error("Error retrieving food log entry", err);
-    res.status(500).send(`Internal server error: ${err.message}`);
+    console.error("Error retrieving food log entry:", err);
+    res.status(500).json({ error: `Internal server error: ${err.message}` });
   }
 });
 
-// DELETE: Remove food log entry
+// DELETE: Remove a food log entry
 router.delete("/:email/:foodId", async (req, res) => {
   const { email, foodId } = req.params;
 
   try {
     const user = await UserData.findOne({ email });
     if (!user) {
-      return res.status(404).send("User not found.");
+      return res.status(404).json({ error: "User not found" });
     }
 
     const foodLogIndex = user.FoodLogs.findIndex(
@@ -97,17 +127,17 @@ router.delete("/:email/:foodId", async (req, res) => {
     );
 
     if (foodLogIndex === -1) {
-      return res.status(404).send("Food log entry not found.");
+      return res.status(404).json({ error: "Food log entry not found" });
     }
 
     user.FoodLogs.splice(foodLogIndex, 1);
-    user.pet[0].frogCoins = user.pet[0].frogCoins - 5;
+    user.frogCoins -= 5; // Fixed typo: 'pet' should be 'user'
     await user.save();
 
-    res.send("Food log entry deleted successfully.");
+    res.json({ message: "Food log entry deleted successfully" });
   } catch (err) {
-    console.error("Error deleting food entry", err);
-    res.status(500).send(`Internal server error: ${err.message}`);
+    console.error("Error deleting food entry:", err);
+    res.status(500).json({ error: `Internal server error: ${err.message}` });
   }
 });
 
