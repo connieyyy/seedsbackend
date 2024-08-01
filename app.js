@@ -17,6 +17,9 @@ const decorRouter = require("./routes/decor");
 const app = express();
 
 app.use(bodyParser.json());
+app.get("/", (req, res) => {
+  res.send("Welcome to the base route!");
+});
 
 // Connect to MongoDB
 mongoose
